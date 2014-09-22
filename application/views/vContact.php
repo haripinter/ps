@@ -176,9 +176,9 @@
                 });
             });
             
-            $('.kotak_tag').click(function(){
+            //$('.kotak_tag').click(function(){
                 //console.log(this.checked)
-            });
+            //});
             
             $('.btsave-contact').click(function(){
                 form = $('.form-input');
@@ -220,6 +220,8 @@
                 bt.click(function(){
                     bu = $(this).parent().find('.list-tags');
                     bu.slideToggle();
+                    
+                    console.log(this)
                 });
             }
             
@@ -270,17 +272,18 @@
             function first_action(){
                 btRemove = $('.tblist-contact .btremove-contact');
                 btRemove.each(function(){
-                    act_remove_tr($(this))
+                    act_remove_tr($(this));
                 });
                 
                 btEdit = $('.tblist-contact .btedit-contact');
                 btEdit.each(function(){
-                    act_edit_tag($(this))
+                    act_edit_tag($(this));
                 });
                 
                 btTags = $('.tblist-contact .btvietags-contact');
                 btTags.each(function(){
-                    act_view_tag($(this))
+                    t = $(this);
+                    act_view_tag(t);
                 });
             }
             
