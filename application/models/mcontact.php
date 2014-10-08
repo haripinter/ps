@@ -53,7 +53,7 @@ class Mcontact extends CI_Model{
     {
         $this->db->where('id',$data['id']);
         $this->db->update('contact_tags_cat',$data);
-        return ($this->db->affected_rows() > 0)? TRUE : FALSE;
+        return ($this->db->affected_rows() >= 0)? TRUE : FALSE;
     }
     
     function filter_input()
@@ -274,7 +274,7 @@ class Mcontact extends CI_Model{
     {
         $this->db->where('id',$data['id']);
         $this->db->update('contact',$data);
-        return ($this->db->affected_rows() > 0)? TRUE : FALSE;
+        return ($this->db->affected_rows() >= 0)? TRUE : FALSE;
     }
     
     /*

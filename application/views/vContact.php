@@ -210,7 +210,7 @@
                 post = $.post(url,data);
                 post.done(function(result){
                     var r = $.parseJSON(result);
-                    var s = arr_tags(r['success_data']);
+                    var sucs = r['success_data'];
                     if(r['status']=='success'){
                         tx = $('.tblist-contact').find('input[name="iemail[]"]');
                         tx.each(function(){
@@ -218,22 +218,30 @@
                             v = t.val();
                             
                             if(v!=''){
+                                theData = $.map(sucs, function(suc) {
+                                            return suc.email == v ? suc : null;
+                                        })[0];
                                 tr = t.parent().parent().parent();
                                 
                                 nam = tr.find('input[name="iname[]"]');
                                 nav = nam.val();
                                 nam.parent().html(nav);
                                 
-                                tag = tr.find('input[name="itag[]"]');
-                                fff = tag.val();
-                                tag.parent().html(fff);
+                                vta = tr.find('.value_tags');
+                                vta.html('');
+                                
+                                
+                               
+                                tgt = decode_json_tags( theData.tags );
+                                lta = tr.find('.label_tags');
+                                lta.html(tgt);
                                 
                                 lis = tr.find('.list-tags');
                                 lis.slideToggle();
                                 
                                 // button
                                 but = tr.find('.btremove-contact');
-                                but.attr('var',s[v]['id']);
+                                but.attr('var',theData.id);
                                 
                                 btf = tr.find('.btvietags-contact');
                                 btf.attr('style','display:none;');
@@ -250,21 +258,6 @@
                     bu = $(this).parent().find('.list-tags');
                     bu.slideToggle();
                 });
-            }
-            
-            function arr_tags( success_data ){
-                var ret = [], tmp = [];
-                succ = $(success_data);
-                succ.each(function(id,tag){
-                    d = this;
-                    ret = tmp[d.email];
-                    //ret[d.email] = [];
-                    //ret[d.email]['id'] = d.id;
-                    //ret[d.email]['name'] = d.name;
-                    //ret[d.email]['tags'] = d.tags;
-                });
-                console.log(ret)
-                return ret;
             }
             
             /* param must be array */
@@ -285,16 +278,14 @@
                 return ret;
             }
             
-            function decode_json_tagss( data ){
-                ret = '';
-                n = 0;
-                data.each( function(){
-                    d = $(this);
-                    if(n > 0) ret += ', ';
-                    ret += '<label class="param_tag" var="'+ d.id +'">'+ d.tag +'</label>';
-                    n++;
+            function encode_json_tags( tr ){
+                ret = [];
+                tmq = tr.find('.param_tag');
+                tmq.each(function(){
+                    tmp = $(this).attr('var');
+                    ret.push(tmp);
                 });
-                return ret;
+                return JSON.stringify(ret);
             }
             
             function find_button_edit( txt, id ){
@@ -329,14 +320,23 @@
                     lta = trr.find('.list-tags');
                     ltv = lta.find('.kotak_tag');
                     tag = trr.find('label[name="value_tags"]');
-                    tx3 = tag.find('input[name="itag[]"]')
+                    tx3 = tag.find('input[name="itag[]"]');
                     if(tx3.length < 1){
-                        tak = tag.html();
-                        tag.html(inp_hidden('itag[]','form-input',tak));
+                        tak = encode_json_tags( trr );
+                        tag.html(inp_hidden('itag[]','form-input','[]'));
+                        tx3 = tag.find('input[name="itag[]"]');
+                        tx3.val(tak);
+                        
+                        tmp = $.parseJSON(tak);
                         
                         ltv.each(function(){
                             ttt = $(this);
                             vtt = ttt.attr('var');
+                            ada = $.inArray(ttt.attr('var'),tmp);
+                            if(ada >= 0){
+                                this.checked = true;
+                            }
+                            tag_click( ttt );
                         });
                         lta.slideToggle();
                     }
