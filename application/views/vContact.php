@@ -51,6 +51,7 @@
                             $btfind = array('name'=>'btvietags-contact',
                                             'class'=>'btvietags-contact btn btn-info btn-xs pull-right',
                                             'var'=>$cont->id,
+                                            'style'=>'display:none;',
                                             'content'=>'<label class="glyphicon glyphicon-search"></label>');
                             echo '<tr>';
                             echo '<td>&nbsp;</td>';
@@ -205,9 +206,17 @@
                                 fff = tag.val();
                                 tag.parent().html(fff);
                                 
+                                lis = tr.find('.list-tags');
+                                lis.slideToggle();
+                                
+                                console.log(s)
+                                
                                 // button
                                 but = tr.find('.btremove-contact');
-                                but.attr('var',s[v]);
+                                but.attr('var',s[v]['id']);
+                                
+                                btf = tr.find('.btvietags-contact');
+                                btf.attr('style','display:none;');
                                 
                                 u = t.parent().html(v);
                             }
@@ -220,18 +229,21 @@
                 bt.click(function(){
                     bu = $(this).parent().find('.list-tags');
                     bu.slideToggle();
-                    
-                    console.log(this)
                 });
             }
             
             function arr_tags( success_data ){
-                var ret = [];
+                var ret = [], tmp = [];
                 succ = $(success_data);
                 succ.each(function(id,tag){
                     d = this;
-                    ret[d.email] = d.id;
+                    ret = tmp[d.email];
+                    //ret[d.email] = [];
+                    //ret[d.email]['id'] = d.id;
+                    //ret[d.email]['name'] = d.name;
+                    //ret[d.email]['tags'] = d.tags;
                 });
+                console.log(ret)
                 return ret;
             }
             
@@ -245,6 +257,9 @@
                     but = $(this);
                     iid = but.parent().find('.btremove-contact').attr('var');
                     trr = but.parent().parent();
+                    
+                    btf =  trr.find('.btvietags-contact');
+                    btf.attr('style','display:block;');
                     
                     // textfield name
                     nam = trr.find('label[name="label_name"]');
@@ -262,9 +277,19 @@
                     
                     // tags
                     tag = trr.find('label[name="label_tags"]');
-                    tx2 = eml.find('input[name="itag[]"]')
-                    if(tx2.length < 1){
-                        tag.html(inp_hidden('itag[]','form-input',tag.html()));
+                    lta = trr.find('.list-tags');
+                    ltv = lta.find('.kotak_tag');
+                    tx3 = tag.find('input[name="itag[]"]')
+                    if(tx3.length < 1){
+                        tak = tag.html();
+                        tag.html(inp_hidden('itag[]','form-input',tak));
+                        
+                        ltv.each(function(){
+                            ttt = $(this);
+                            vtt = ttt.attr('var');
+                            console.log(vtt)
+                        });
+                        lta.slideToggle();
                     }
                 });
             }

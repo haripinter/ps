@@ -6,7 +6,7 @@ function decode_json_tags( $str ){
     $n = 0;
     foreach($data as $d){
         if($n > 0) $ret .= ', ';
-        $ret .= $d->tag;
+        $ret .= '<label class="param_tag" var="'. $d->id .'">'. $d->tag .'</label>';
         $n++;
     }
     return $ret;
@@ -16,7 +16,7 @@ function tags_name( $str ){
     $data = json_decode($str);
     $html = '<div>';
     foreach($data as $d){
-        $html .= '<input type="checkbox" class="kotak_tag"> '. $d->tag_name .'<br/>';
+        $html .= '<input type="checkbox" class="kotak_tag" var="'. $d->tag_name .'"> '. $d->tag_name .'<br/>';
     }
     $html .= '</div>';
     return $html;
