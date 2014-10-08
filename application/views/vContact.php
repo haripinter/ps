@@ -59,7 +59,7 @@
                             echo '<td><label name="label_email" style="font-weight:normal;">'. $cont->email .'</label></td>';
                             echo '<td>'.
                                     '<label name="label_tags" style="font-weight:normal;">'. decode_json_tags($cont->tags) .'</label>'.
-                                    '<label name="label_value" var="'. htmlspecialchars($cont->tags) .'"></label>'.
+                                    '<label name="value_tags"></label>'.
                                     form_button($btfind) . 
                                     '<div class="list-tags" style="display:none;">'. tags_name( $tags_name ) .'</div>'.
                                  '</td>';
@@ -112,11 +112,10 @@
             }
             
             function tags_name(){
-                //html = '<div style="height: 100px; overflow-y: scroll;">';
                 html = '<div>';
                 tags = $.parseJSON($('.tags_name').val());
                 $(tags).each(function(){
-                    html += '<input type="checkbox" class="kotak_tag"> ' + this.tag_name + '<br/>'
+                    html += '<input type="checkbox" class="kotak_tag" var="'+ this.id +'"> ' + this.tag_name + '<br/>'
                 });
                 html += '</a>';
                 
@@ -154,8 +153,8 @@
                             tx_td(tx_label('label_name','',tx_input('iname[]','form-input',''))) +
                             tx_td(tx_label('label_email','',inp_hidden('idc[]','form-input','') + tx_input('iemail[]','form-input',''))) +
                             tx_td(
-                                tx_label('label_tags','pull-left',inp_hidden('itag[]','form-input','')) +
-                                tx_label('label_value','pull-left','') +
+                                tx_label('label_tags','','') +
+                                tx_label('value_tags','',inp_hidden('itag[]','form-input','[]')) +
                                 tx_button('','btvietags-contact btn btn-info btn-xs pull-right','<label class="glyphicon glyphicon-search"></label>') +
                                 '<div class="list-tags" style="display:none;">'+ tags_name() +'</div>'
                                 ) +
@@ -173,13 +172,36 @@
                 act_view_tag(btv);
                 chk = lasttr.find('.kotak_tag');
                 $(chk).each(function(){
-                    //console.log(this)
+                    tag_click( $(this) );
                 });
             });
             
-            //$('.kotak_tag').click(function(){
-                //console.log(this.checked)
-            //});
+            function tag_click( check ){
+                check.click(function(){
+                    chk = $(this);
+                    tdd = chk.parent().parent().parent();
+                    lt  = tdd.find('label[name="label_tags"]');
+                    
+                    vt  = tdd.children('label[name="value_tags"]');
+                    ivt = vt.children('input[name="itag[]"]');
+                    vvt = $.parseJSON(ivt.val());
+                    tmp = chk.attr('var');
+                    ada = $.inArray(tmp,vvt);
+                    if(this.checked){
+                        if(ada<0) vvt.push(tmp);
+                    }else{
+                        if(ada>=0) vvt.splice(ada,1);
+                    }
+                    
+                    // update the label
+                    tags = decode_json_tags(vvt);
+                    lt.html(tags);
+                    
+                    // parse json to string
+                    ret = JSON.stringify(vvt);
+                    ivt.val(ret);
+                });
+            }
             
             $('.btsave-contact').click(function(){
                 form = $('.form-input');
@@ -208,8 +230,6 @@
                                 
                                 lis = tr.find('.list-tags');
                                 lis.slideToggle();
-                                
-                                console.log(s)
                                 
                                 // button
                                 but = tr.find('.btremove-contact');
@@ -247,6 +267,36 @@
                 return ret;
             }
             
+            /* param must be array */
+            function decode_json_tags( param ){
+                ret = '';
+                n = 0;
+                tags = $.parseJSON($('.tags_name').val());
+                param.forEach(function(id){
+                    var theTag = $.map(tags, function(tag) {
+                            return tag.id == id ? tag.tag_name : null;
+                        });
+                    if(theTag.length>0){
+                        if(n > 0) ret += ', ';
+                        n++;
+                        ret += '<label class="param_tag" var="'+ id +'">'+ theTag +'</label>';
+                    }
+                });
+                return ret;
+            }
+            
+            function decode_json_tagss( data ){
+                ret = '';
+                n = 0;
+                data.each( function(){
+                    d = $(this);
+                    if(n > 0) ret += ', ';
+                    ret += '<label class="param_tag" var="'+ d.id +'">'+ d.tag +'</label>';
+                    n++;
+                });
+                return ret;
+            }
+            
             function find_button_edit( txt, id ){
                 bt = txt.parent().parent().parent().find('.btedit-contact');
                 bt.attr('var',id);
@@ -276,9 +326,9 @@
                     }
                     
                     // tags
-                    tag = trr.find('label[name="label_tags"]');
                     lta = trr.find('.list-tags');
                     ltv = lta.find('.kotak_tag');
+                    tag = trr.find('label[name="value_tags"]');
                     tx3 = tag.find('input[name="itag[]"]')
                     if(tx3.length < 1){
                         tak = tag.html();
@@ -287,7 +337,6 @@
                         ltv.each(function(){
                             ttt = $(this);
                             vtt = ttt.attr('var');
-                            console.log(vtt)
                         });
                         lta.slideToggle();
                     }

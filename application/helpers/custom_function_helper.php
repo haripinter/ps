@@ -16,7 +16,7 @@ function tags_name( $str ){
     $data = json_decode($str);
     $html = '<div>';
     foreach($data as $d){
-        $html .= '<input type="checkbox" class="kotak_tag" var="'. $d->tag_name .'"> '. $d->tag_name .'<br/>';
+        $html .= '<input type="checkbox" class="kotak_tag" var="'. $d->id .'"> '. $d->tag_name .'<br/>';
     }
     $html .= '</div>';
     return $html;
