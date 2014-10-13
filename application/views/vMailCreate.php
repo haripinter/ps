@@ -30,12 +30,16 @@
         
         ?>
         <div class="col-md-10">
+            <button class="msg-back btn btn-default pull-right">Back</button>
+        </div>
+        <div class="col-md-10">
             <input value="<?php echo $msg['title']; ?>" name="msgtitle" class="msg-title form-control" type="text" style="margin-bottom:5px" placeholder="Title">
             <input value="<?php echo $msg['subject']; ?>" name="msgsubject" class="msg-subject form-control" type="text" style="margin-bottom:5px" placeholder="Email Subject">
             <textarea class="summernote"><?php echo $msg['message']; ?></textarea>
             <button class="msg-save btn btn-default" style="margin-top:5px" var="<?php echo $msg['id']; ?>">Simpan</button>
             &nbsp;<label class="msg-result"></label>
         </div>
+        
         <script src="<?php echo base_url(); ?>globals/jquery-1.11.1.min.js"></script>
         <script src="<?php echo base_url(); ?>globals/bootstrap/js/bootstrap.min.js"></script>
         <script src="<?php echo base_url(); ?>globals/summnote/summernote.min.js" type="text/javascript"></script>
@@ -44,6 +48,10 @@
                 $('.summernote').summernote({
                     height: 250
                 });
+            });
+            
+            $('.msg-back').click(function(){
+                window.history.back();
             });
             
             $('.msg-save').click(function(){
