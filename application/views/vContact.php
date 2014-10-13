@@ -23,7 +23,7 @@
         echo form_button($btsave).'</center>';
         ?>
         <div>
-            Total Email : <?php echo $total_email; ?>
+            Total Email : <label id="total_email"><?php echo $total_email; ?></label>
         </div>
         <!--form class="form-input-contact"-->
             <table class="tblist-contact table">
@@ -134,7 +134,8 @@
                             post.done(function(result){
                                 var res = $.parseJSON(result);
                                 if(res['status']==='success'){
-                                    remove_tr(bt)
+                                    remove_tr(bt);
+                                    $('#total_email').html(res['total_email']);
                                 }
                             });
                         }else{
@@ -230,14 +231,12 @@
                                 vta = tr.find('.value_tags');
                                 vta.html('');
                                 
+                                tog = tr.find('.list-tags');
+                                tog.slideUp();
                                 
-                               
                                 tgt = decode_json_tags( theData.tags );
                                 lta = tr.find('.label_tags');
                                 lta.html(tgt);
-                                
-                                lis = tr.find('.list-tags');
-                                lis.slideToggle();
                                 
                                 // button
                                 but = tr.find('.btremove-contact');
@@ -249,6 +248,7 @@
                                 u = t.parent().html(v);
                             }
                         });
+                        $('#total_email').html(r['total_email']);
                     }
                 });
             });
@@ -338,7 +338,6 @@
                             }
                             tag_click( ttt );
                         });
-                        lta.slideToggle();
                     }
                 });
             }

@@ -220,6 +220,8 @@ class Mcontact extends CI_Model{
         }
         if($order!=null){
             $this->db->order_by( $order );
+        }else{
+            $this->db->order_by( 'id' );
         }
         
         $data = $this->db->get();

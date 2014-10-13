@@ -68,6 +68,7 @@ class Contact extends CI_Controller {
     {
         $result = $this->mcontact->filter_post_contact();
         $result['status'] = 'success';
+        $result['total_email'] = $this->mcontact->count_mail();
         echo json_encode($result);
     }
     
@@ -77,6 +78,7 @@ class Contact extends CI_Controller {
         
         $id = $this->input->post('iid');
         $xx = $this->mcontact->remove_contact($id);
+        $result['total_email'] = $this->mcontact->count_mail();
         if($xx) $result['status'] = 'success';
         
         echo json_encode($result);

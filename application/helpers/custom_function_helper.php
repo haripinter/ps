@@ -6,7 +6,7 @@ function decode_json_tags( $str ){
     $n = 0;
     foreach($data as $d){
         if($n > 0) $ret .= ', ';
-        $ret .= '<label class="param_tag" var="'. $d->id .'">'. $d->tag .'</label>';
+        $ret .= '<label class="param_tag" var="'. $d->id .'" style="font-weight:normal;">'. $d->tag .'</label>';
         $n++;
     }
     return $ret;
