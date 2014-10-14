@@ -25,6 +25,7 @@ function tags_name( $str ){
 function select_sender( $name, $clas, $str, $sel=null){
     $data = json_decode($str);
     $html = '<select name="'. $name .'" class="'. $clas .'">';
+    $html .= '<option value="0">- Change -</option>';
     foreach($data as $d){
         $v = '';
         if($sel==$d->id) $v = 'selected';

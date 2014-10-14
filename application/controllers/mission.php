@@ -56,6 +56,41 @@ class Mission extends CI_Controller {
         return json_encode($data);
     }
     
+    function get_message(){
+        $this->load->model('mmail');
+        $data = array();
+        $rets = $this->mmail->get_message_out();
+        if($rets->num_rows > 0){
+            $data['status'] = 'success';
+            $data['data'] = array();
+            foreach($rets->result() as $ret){
+                $tmp = array();
+                $tmp['id'] = $ret->id;
+                $tmp['title'] = $ret->title;
+                $tmp['subject'] = $ret->subject;
+                array_push($data['data'],$tmp);
+            }
+        }
+        echo json_encode($data);
+    }
+    
+    function get_target(){
+        $this->load->model('mcontact');
+        $data = array();
+        $rets = $this->mcontact->get_tags();
+        if($rets->num_rows > 0){
+            $data['status'] = 'success';
+            $data['data'] = array();
+            foreach($rets->result() as $ret){
+                $tmp = array();
+                $tmp['id'] = $ret->id;
+                $tmp['tag_name'] = $ret->tag_name;
+                array_push($data['data'],$tmp);
+            }
+        }
+        echo json_encode($data);
+    }
+    
     function db(){
         $conf = array();
         $conf['hostname'] = 'localhost';
