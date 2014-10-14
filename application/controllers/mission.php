@@ -16,8 +16,11 @@ class Mission extends CI_Controller {
     
     function create( $id=null)
     {
+        $this->load->helper('custom_function');
         
-        $this->load->view('vMissionCreate');
+        $data = array();
+        $data['sender'] = $this->get_sender();
+        $this->load->view('vMissionCreate',$data);
     }
     
     function post_message()
@@ -43,8 +46,6 @@ class Mission extends CI_Controller {
         $data = array();
         $rets = $this->msender->get_sender();
         if($rets->num_rows > 0){
-            $data['status'] = 'success';
-            $data['data'] = array();
             foreach($rets->result() as $ret){
                 $tmp = array();
                 $tmp['id'] = $ret->id;
@@ -52,7 +53,7 @@ class Mission extends CI_Controller {
                 array_push($data,$tmp);
             }
         }
-        echo json_encode($data);
+        return json_encode($data);
     }
     
     function db(){

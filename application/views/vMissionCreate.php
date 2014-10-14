@@ -20,11 +20,6 @@
         $btadd = array('name'=>'btadd-mission',
                        'class'=>'btadd-mission btn btn-success',
                        'content'=>'Add');
-                       
-        $btfsender = array('name'=>'btfind-sender',
-                       'class'=>'btfind-sender btn btn-info btn-xs pull-right',
-                       'var'=>1,
-                       'content'=>'<label class="glyphicon glyphicon-search"></label>');
         $btfmaster = array('name'=>'btfind-master',
                        'class'=>'btfind-master btn btn-info btn-xs pull-right',
                        'var'=>1,
@@ -48,10 +43,10 @@
                         <td>Sender</td>
                         <td>:</td>
                         <td>
-                            <label name="label_sender" style="font-weight:normal;"></label>
+                            <label name="label_sender" style="font-weight:normal;">
+                                <?php echo select_sender('val-sender','form-input',$sender); ?>
+                            </label>
                             <label name="value_sender"></label>
-                            <?php echo form_button($btfsender); ?>
-                            <div class="list-sender" style="display:none;"></div>
                         </td>
                     </tr>
                     <tr>
@@ -86,6 +81,30 @@
         <script src="<?php echo base_url(); ?>globals/jquery-1.11.1.min.js"></script>
         <script src="<?php echo base_url(); ?>globals/bootstrap/js/bootstrap.min.js"></script>
         <script>
+            // data must be array id,email
+            function tx_radio_sender(data){
+                html = '<ul>';
+                data.forEach(function(det){
+                    html += '<li>'
+                    html += '<input type="radio" value="'+ det.id +'" name="tx_sender">&nbsp;'+ det.email +'<br\>';
+                    html += '</li>'
+                });
+                html += '</ul>';
+                return html;
+            }
+            
+            function tx_option_sender(data, inp){
+                html = '<select name="tx_sender" class="form-input">';
+                $(data).each(function(){
+                    dd = this;
+                    sl = '';
+                    if(inp==dd.id) sl = 'selected';
+                    html += '<option value="'+ dd.id +'" '+ sl +'>'+ dd.email +'</option>';
+                });
+                html += '</select>';
+                return html;
+            }
+            
             $('.btfind-sender').click(function(){
                 bt = $(this);
                 td = bt.parent();
@@ -97,7 +116,13 @@
                 url = '<?php echo site_url(); ?>/mission/get_sender';
                 pos = $.post(url);
                 pos.done(function(result){
-                    console.log(result)
+                    data = $.parseJSON(result);
+                    if(data['status']=='success'){
+                        arr = data['data'];
+                        lists.html(tx_option_sender(arr, ''));
+                        lists.slideDown();
+                        console.log(lists)
+                    }
                 });
             });
         </script>

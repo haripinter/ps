@@ -21,4 +21,18 @@ function tags_name( $str ){
     $html .= '</div>';
     return $html;
 }
+
+function select_sender( $name, $clas, $str, $sel=null){
+    $data = json_decode($str);
+    $html = '<select name="'. $name .'" class="'. $clas .'">';
+    foreach($data as $d){
+        $v = '';
+        if($sel==$d->id) $v = 'selected';
+        $html .= '<option value="'. $d->id .'" '. $v .'>'. $d->email .'</option>';
+    }
+    $html .= '</select>';
+    return $html;
+}
+
+
 ?>
