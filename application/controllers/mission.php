@@ -22,7 +22,7 @@ class Mission extends CI_Controller {
         //}
         $this->load->library('crypto');
         echo $this->crypto->enkrip('hai').'<br/>';
-        echo $this->crypto->dekrip('XyMjI8KAIyMjX1Ze ');
+        echo $this->crypto->dekrip('XyMjI8KAIyMjX1Ze');
         $this->load->view('vMissionCreate');
     }
     
