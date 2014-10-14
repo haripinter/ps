@@ -9,7 +9,7 @@
         <link href="<?php echo base_url(); ?>globals/bootstrap/css/bootstrap-theme.min.css" rel="stylesheet">
         <style>
             .form-mission td{
-                padding: 3px;
+                padding: 10px;
             }
         </style>
     </head>
@@ -21,9 +21,22 @@
                        'class'=>'btadd-mission btn btn-success',
                        'content'=>'Add');
                        
+        $btfsender = array('name'=>'btfind-sender',
+                       'class'=>'btfind-sender btn btn-info btn-xs pull-right',
+                       'var'=>1,
+                       'content'=>'<label class="glyphicon glyphicon-search"></label>');
+        $btfmaster = array('name'=>'btfind-master',
+                       'class'=>'btfind-master btn btn-info btn-xs pull-right',
+                       'var'=>1,
+                       'content'=>'<label class="glyphicon glyphicon-search"></label>');
+        $btftarget = array('name'=>'btfind-target',
+                       'class'=>'btfind-target btn btn-info btn-xs pull-right',
+                       'var'=>1,
+                       'content'=>'<label class="glyphicon glyphicon-search"></label>');
+                       
         echo '<center>'.form_button($btadd).'</center>';
         ?>
-        <div>
+        <div align="center">
             <table class="form-mission">
                 <tbody>
                     <tr>
@@ -35,24 +48,30 @@
                         <td>Sender</td>
                         <td>:</td>
                         <td>
-                            <div></div>
-                            <button class="btn btn-info btn-xs pull-right"><i class="glyphicon glyphicon-search"></i></button>
+                            <label name="label_sender" style="font-weight:normal;"></label>
+                            <label name="value_sender"></label>
+                            <?php echo form_button($btfsender); ?>
+                            <div class="list-sender" style="display:none;"></div>
                         </td>
                     </tr>
                     <tr>
                         <td>Master Message</td>
                         <td>:</td>
                         <td>
-                            <div></div>
-                            <button class="btn btn-info btn-xs pull-right"><i class="glyphicon glyphicon-search"></i></button>
+                            <label name="label_master" style="font-weight:normal;"></label>
+                            <label name="value_master"></label>
+                            <?php echo form_button($btfmaster); ?>
+                            <div class="list-master" style="display:none;"></div>
                         </td>
                     </tr>
                     <tr>
                         <td>Target</td>
                         <td>:</td>
                         <td>
-                            <div></div>
-                            <button class="btn btn-info btn-xs pull-right"><i class="glyphicon glyphicon-search"></i></button>
+                            <label name="label_target" style="font-weight:normal;"></label>
+                            <label name="value_target"></label>
+                            <?php echo form_button($btftarget); ?>
+                            <div class="list-target" style="display:none;"></div>
                         </td>
                     </tr>
                     <tr>
@@ -67,33 +86,19 @@
         <script src="<?php echo base_url(); ?>globals/jquery-1.11.1.min.js"></script>
         <script src="<?php echo base_url(); ?>globals/bootstrap/js/bootstrap.min.js"></script>
         <script>
-            $('.btadd-mission').click(function(){
-                id = $(this).attr('var');
-                location.href = '<?php echo site_url(); ?>/mission/create/';
-            });
-            
-            $('.btedit-mission').click(function(){
-                id = $(this).attr('var');
-                location.href = '<?php echo site_url(); ?>/mission/create/'+ id;
-            });
-            
-            $('.btremove-mission').click(function(){
+            $('.btfind-sender').click(function(){
                 bt = $(this);
-                conf = confirm('Serius mau dihapus?')
-                if(conf){
-                    var i = bt.attr('var');
-                    if( i > 0 ){
-                        url  = '<?php echo site_url(); ?>/mail/remove_message_out';
-                        data = { 'iid':i };
-                        post = $.post(url,data);
-                        post.done(function(result){
-                            var res = $.parseJSON(result);
-                            if(res['status']==='success'){
-                                bt.parent().parent().remove();
-                            }
-                        });
-                    }
-                }
+                td = bt.parent();
+                
+                label = td.find('label[name="label_sender"]');
+                value = td.find('label[name="value_sender"]');
+                lists = td.find('.list-sender');
+                
+                url = '<?php echo site_url(); ?>/mission/get_sender';
+                pos = $.post(url);
+                pos.done(function(result){
+                    console.log(result)
+                });
             });
         </script>
     </body>

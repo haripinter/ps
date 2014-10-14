@@ -16,13 +16,7 @@ class Mission extends CI_Controller {
     
     function create( $id=null)
     {
-        //$data['message'] = '';
-        //if(isset($id) && is_numeric($id) && $id > 0){
-        //    $data['message'] = $this->mmail->get_message_out( array('id'=>$id) );
-        //}
-        $this->load->library('crypto');
-        echo $this->crypto->enkrip('hai').'<br/>';
-        echo $this->crypto->dekrip('XyMjI8KAIyMjX1Ze');
+        
         $this->load->view('vMissionCreate');
     }
     
@@ -42,6 +36,23 @@ class Mission extends CI_Controller {
         //$xx = $this->mmail->remove_message_out($id);
         //if($xx) $result['status'] = 'success';
         //echo json_encode($result);
+    }
+    
+    function get_sender(){
+        $this->load->model('msender');
+        $data = array();
+        $rets = $this->msender->get_sender();
+        if($rets->num_rows > 0){
+            $data['status'] = 'success';
+            $data['data'] = array();
+            foreach($rets->result() as $ret){
+                $tmp = array();
+                $tmp['id'] = $ret->id;
+                $tmp['email'] = $ret->email;
+                array_push($data,$tmp);
+            }
+        }
+        echo json_encode($data);
     }
     
     function db(){
