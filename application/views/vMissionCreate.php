@@ -21,9 +21,9 @@
         <?php
         echo heading('List Mission',2);
         
-        $btadd = array('name'=>'btadd-mission',
-                       'class'=>'btadd-mission btn btn-success',
-                       'content'=>'Add');
+        $btsave = array('name'=>'btsave-mission',
+                       'class'=>'btsave-mission btn btn-success',
+                       'content'=>'Save');
         $btfmaster = array('name'=>'btfind-master',
                        'class'=>'btfind-master btn btn-info btn-xs pull-right',
                        'var'=>1,
@@ -33,7 +33,7 @@
                        'var'=>1,
                        'content'=>'<label class="glyphicon glyphicon-search"></label>');
                        
-        echo '<center>'.form_button($btadd).'</center>';
+        //echo '<center>'.form_button($btadd).'</center>';
         ?>
         <div align="center">
             <table class="form-mission">
@@ -64,7 +64,7 @@
                         <td>
                             <label name="label_master" style="font-weight:normal;"></label>
                             <label name="value_master">
-                                <input type="hidden" class="form-input" name="val_master">
+                                <input type="hidden" class="form-input" name="val_master" value="0">
                             </label>
                             <?php echo form_button($btfmaster); ?>
                             <div class="list-master" style="display:none;"></div>
@@ -76,7 +76,7 @@
                         <td>
                             <label name="label_target" style="font-weight:normal;"></label>
                             <label name="value_target">
-                                <input type="hidden" class="form-input" name="val_target">
+                                <input type="hidden" class="form-input" name="val_target" value="[]">
                             </label>
                             <?php echo form_button($btftarget); ?>
                             <div class="list-target" style="display:none;"></div>
@@ -86,6 +86,17 @@
                         <td valign="top">Schedule</td>
                         <td valign="top">:</td>
                         <td></td>
+                    </tr>
+                    <tr>
+                        <td valign="top"></td>
+                        <td valign="top"></td>
+                        <td>
+                            <div style="float:right">
+                            <?php
+                                echo form_button($btsave);
+                            ?>
+                            </div>
+                        </td>
                     </tr>
                 </tbody>
             </table>
@@ -129,6 +140,14 @@
                 return html;
             }
             
+            $('.btsave-mission').click(function(){
+                form = $('.form-input');
+                data = form.serializeArray();
+                url  = '<?php echo site_url(); ?>/contact/post_contact';
+                
+                console.log(data)
+            });
+            
             $('.btfind-master').click(function(){
                 bt = $(this);
                 td = bt.parent();
@@ -144,6 +163,12 @@
                     if(data['status']=='success'){
                         arr = data['data'];
                         lists.html(tx_radio_sender(arr, ''));
+                        
+                        rad = lists.find('input[name="tx_sender"]');
+                        rad.each(function(){
+                            act_radio( $(this) );
+                        });
+                        
                         lists.slideDown();
                     }
                 });
@@ -164,10 +189,41 @@
                     if(data['status']=='success'){
                         arr = data['data'];
                         lists.html(tx_check_target(arr, ''));
+                        
+                        rad = lists.find('input[name="tx_target"]');
+                        rad.each(function(){
+                            act_check( $(this) );
+                        });
+                        
                         lists.slideDown();
                     }
                 });
             });
+            
+            function act_check( rad ){
+                rad.click(function(){
+                    t = $('.form-mission').find('input[name="val_target"]');
+                    v = this.value;
+                    w = t.val();
+                    w = $.parseJSON(w);
+                    i = w.indexOf(v);
+                    if(this.checked){
+                        if( i < 0 ) w.push(v); 
+                    }else{
+                        if( i >= 0 ) w.splice(i,1);
+                    }
+                    t.val( JSON.stringify(w) );
+                    console.log(w)
+                });
+            }
+            
+            function act_radio( rad ){
+                rad.click(function(){
+                    t = $('.form-mission').find('input[name="val_master"]');
+                    v = this.value;
+                    t.val(v);
+                });
+            }
         </script>
     </body>
 </html>
