@@ -41,7 +41,10 @@
                     <tr>
                         <td width="150px" valign="top">Mission</td>
                         <td width="20px" valign="top">:</td>
-                        <td><input type="text" name="val_title" class="form-control form-input" placeholder="Mission Name"></td>
+                        <td>
+                            <input type="text" name="val_title" class="form-control form-input" placeholder="Mission Name">
+                            <input type="hidden" name="val_id" id="val_id" class="form-input" value="">
+                        </td>
                     </tr>
                     <tr>
                         <td valign="top">Sender</td>
@@ -143,9 +146,14 @@
             $('.btsave-mission').click(function(){
                 form = $('.form-input');
                 data = form.serializeArray();
-                url  = '<?php echo site_url(); ?>/contact/post_contact';
-                
-                console.log(data)
+                url  = '<?php echo site_url(); ?>/mission/post_mission';
+                pos = $.post(url, data);
+                pos.done(function(result){
+                    data = $.parseJSON(result);
+                    if(data['status']=='success'){
+                        $('#val_id').val(data['data'].id);
+                    }
+                });
             });
             
             $('.btfind-master').click(function(){
@@ -213,7 +221,6 @@
                         if( i >= 0 ) w.splice(i,1);
                     }
                     t.val( JSON.stringify(w) );
-                    console.log(w)
                 });
             }
             

@@ -5,7 +5,7 @@ class Mission extends CI_Controller {
 		parent::__construct();
         
         $this->load->database($this->db());
-        //$this->load->model('mmail');
+        $this->load->model('mmission');
 	}
     
     public function index()
@@ -23,22 +23,57 @@ class Mission extends CI_Controller {
         $this->load->view('vMissionCreate',$data);
     }
     
-    function post_message()
+    function remove_mission()
     {
-        //$result = $this->mmail->post_message_out();
-        //$result['status'] = 'success';
-        //echo json_encode($result);
+        $result = array();
+        $result['status'] = 'failed';
+        
+        $id = $this->input->post('id');
+        $xx = $this->mmission->remove_mission($id);
+        if($xx) $result['status'] = 'success';
+        echo json_encode($result);
     }
     
-    function remove_message_out()
+    function post_mission()
     {
-        //$result = array();
-        //$result['status'] = 'failed';
-        //
-        //$id = $this->input->post('iid');
-        //$xx = $this->mmail->remove_message_out($id);
-        //if($xx) $result['status'] = 'success';
-        //echo json_encode($result);
+        $result = array();
+        $result['data'] = $this->filter_post_mission();
+        $result['status'] = 'success';
+        echo json_encode($result);
+    }
+    
+    function filter_post_mission()
+    {
+        $idm  = intval($this->input->post('val_id'));
+        $tit  = $this->input->post('val_title');
+        $sub  = $this->input->post('val_subject');
+        $mas  = $this->input->post('val_master');
+        $sen  = $this->input->post('val_sender');
+        $tar  = $this->input->post('val_target');
+        
+        $data = array();
+        $data['id'] = $idm;
+        $data['mission_cat_id'] = $sen;
+        $data['name'] = $tit;
+        $data['subject'] = $sub;
+        $data['msg_out_id'] = $mas;
+        $data['sender_id'] = $sen;
+        $data['contact_tags'] = $tar;
+        $data['status'] = 0;
+        $data['order'] = 0;
+        
+        // for result
+        $result = array();
+        
+        if($idm > 0){
+            $r = $this->mmission->update_mission($data);
+            $result['id'] = $data['id'];
+        }else{
+            $r = $this->mmission->insert_mission($data);
+            $result['id'] = ($r == FALSE)? 0 : $r;
+        }
+        
+        return $result;
     }
     
     function get_sender(){
