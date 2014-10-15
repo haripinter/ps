@@ -15,23 +15,61 @@
         $btadd = array('name'=>'btadd-mission',
                        'class'=>'btadd-mission btn btn-success',
                        'content'=>'Add');
-                       
         echo '<center>'.form_button($btadd).'</center>';
+
         ?>
         <div>
             <table class="tblist-mission table">
                 <thead>
                     <tr>
                         <th>No.</th>
-                        <th>Mission</th>
-                        <th>Mail Targets</th>
-                        <th>Configuration</th>
+                        <th>Mission Name</th>
+                        <th>Subject Email</th>
+                        <th>Target Tags</th>
+                        <th>Progress</th>
                         <th>Status</th>
                         <th>&nbsp;</th>
                     </tr>
                 </thead>
                 <tbody>
-                    
+                    <?php
+                    if($missions->num_rows > 0){
+                        foreach($missions->data as $mission){
+                            $tax = '';
+                            $tags = $mission->tags;
+                            if(sizeof($tags) > 0){
+                                foreach($tags as $tag){
+                                    if(sizeof($tag) > 0){
+                                        $n = 0;
+                                        foreach($tag as $t){
+                                            $tax = ($n++ > 0)? ', '.$t['tag_name'] : $t['tag_name'];
+                                        }
+                                    }
+                                }
+                            }
+                            
+                            $btedit = array('name'=>'btedit-mission',
+                                        'class'=>'btedit-mission btn btn-sm btn-warning',
+                                        'var'=>$mission->id,
+                                        'content'=>'e');
+                            $btdel = array('name'=>'btdel-mission',
+                                        'class'=>'btdel-mission btn btn-sm btn-danger',
+                                        'var'=>$mission->id,
+                                        'content'=>'x');
+                        ?>
+                            <tr>
+                                <td>&nbsp;</td>
+                                <td><?php echo $mission->name; ?></td>
+                                <td><?php echo $mission->subject; ?></td>
+                                <td><?php echo $tax; ?></td>
+                                <td>&nbsp;</td>
+                                <td><?php echo status_button($mission->id, $mission->status); ?></td>
+                                <td><?php echo form_button($btedit). ' '. form_button($btdel); ?></td>
+                            </tr>
+                        <?php
+                        }
+                    }
+                    ?>
                 </tbody>
             </table>
         </div>
@@ -49,14 +87,14 @@
                 location.href = '<?php echo site_url(); ?>/mission/create/'+ id;
             });
             
-            $('.btremove-mission').click(function(){
+            $('.btdel-mission').click(function(){
                 bt = $(this);
                 conf = confirm('Serius mau dihapus?')
                 if(conf){
                     var i = bt.attr('var');
                     if( i > 0 ){
-                        url  = '<?php echo site_url(); ?>/mail/remove_message_out';
-                        data = { 'iid':i };
+                        url  = '<?php echo site_url(); ?>/mission/remove_mission';
+                        data = { 'id':i };
                         post = $.post(url,data);
                         post.done(function(result){
                             var res = $.parseJSON(result);
@@ -66,6 +104,31 @@
                         });
                     }
                 }
+            });
+            
+            $('.mission-status').click(function(){
+                btn = $(this);
+                data = [{name: 'id', value: btn.attr('var')},{name: 'status', value: btn.attr('stat')}];
+                url  = '<?php echo site_url(); ?>/mission/change_status';
+                post = $.post(url,data);
+                post.done(function(result){
+                    var res = $.parseJSON(result);
+                    if(res['status']==='success'){
+                        dat = res['data'];
+                        switch(dat){
+                            case 0:
+                                btn.attr('stat',dat);
+                                btn.removeClass('btn-success').addClass('btn-warning');
+                                btn.html('off');
+                                break;
+                            case 1:
+                                btn.attr('stat',dat);
+                                btn.removeClass('btn-warning').addClass('btn-success');
+                                btn.html('on');
+                                break;
+                        }
+                    }
+                });
             });
         </script>
     </body>

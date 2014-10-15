@@ -10,8 +10,42 @@ class Mission extends CI_Controller {
     
     public function index()
     {
-        //$data['message'] = $this->mmail->get_message_out();
-        $this->load->view('vMission');
+        $this->load->helper('custom_function');
+        $data = array();
+        $data['missions_default'] = $this->mmission->get_mission();
+        $data['missions'] = $this->mission_tag($data);
+        $this->load->view('vMission',$data);
+    }
+    
+    function mission_tag( $datas ){
+        $this->load->model('mcontact');
+        $datas = $datas['missions_default'];
+
+        $res = new stdClass;
+        $res->num_rows = $datas->num_rows;
+        $res->data = array();
+        if($datas->num_rows > 0){
+            foreach($datas->result() as $data){
+                $tmp = $data;
+                $tmp->tags = array();
+                $tmq = json_decode($tmp->contact_tags);
+                foreach($tmq as $t){
+                    $u = $this->mcontact->get_tags($t);
+                    $v = array();
+                    if($u->num_rows > 0){
+                        foreach($u->result() as $w){
+                            $wt = array();
+                            $wt['id'] = $w->id;
+                            $wt['tag_name'] = $w->tag_name;
+                            array_push($v,$wt);
+                        }
+                    }
+                    array_push($tmp->tags, $v);
+                }
+                array_push($res->data, $tmp);
+            }
+        }
+        return $res;
     }
     
     function create( $id=null)
@@ -124,6 +158,19 @@ class Mission extends CI_Controller {
             }
         }
         echo json_encode($data);
+    }
+    
+    function change_status(){
+        $data = array();
+        $id = intval($this->input->post('id'));
+        $st = intval($this->input->post('status'));
+        $data['id'] = $id;
+        $data['status'] = ($st == 1)? 0 : 1;
+        
+        $result = array();
+        $result['status'] = 'success';
+        $result['data'] = $this->mmission->change_status($data);
+        echo json_encode($result);
     }
     
     function db(){
