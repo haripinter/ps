@@ -21,19 +21,36 @@
         <?php
         echo heading('List Mission',2);
         
+        $mis = array();
+        $mis['id'] = '';
+        $mis['title'] = '';
+        $mis['sender'] = '';
+        $mis['subject'] = '';
+        $mis['master'] = '';
+        $mis['target'] = '';
+        if($mission!='' && $mission->num_rows == 1){
+            foreach($mission->result() as $m){
+                $mis['id'] = $m->id;
+                $mis['title'] = $m->name;
+                $mis['sender'] = $m->sender_id;
+                $mis['subject'] = $m->subject;
+                $mis['master'] = $m->msg_out_id;
+                $mis['target'] = htmlspecialchars($m->contact_tags);
+            }
+        }
+        
         $btsave = array('name'=>'btsave-mission',
                        'class'=>'btsave-mission btn btn-success',
                        'content'=>'Save');
         $btfmaster = array('name'=>'btfind-master',
                        'class'=>'btfind-master btn btn-info btn-xs pull-right',
-                       'var'=>1,
+                       'var'=>$mis['id'],
                        'content'=>'<label class="glyphicon glyphicon-search"></label>');
         $btftarget = array('name'=>'btfind-target',
                        'class'=>'btfind-target btn btn-info btn-xs pull-right',
-                       'var'=>1,
+                       'var'=>$mis['id'],
                        'content'=>'<label class="glyphicon glyphicon-search"></label>');
-                       
-        //echo '<center>'.form_button($btadd).'</center>';
+
         ?>
         <div align="center">
             <table class="form-mission">
@@ -42,8 +59,8 @@
                         <td width="150px" valign="top">Mission</td>
                         <td width="20px" valign="top">:</td>
                         <td>
-                            <input type="text" name="val_title" class="form-control form-input" placeholder="Mission Name">
-                            <input type="hidden" name="val_id" id="val_id" class="form-input" value="">
+                            <input type="text" name="val_title" class="form-control form-input" placeholder="Mission Name" value="<?php echo $mis['title']; ?>">
+                            <input type="hidden" name="val_id" id="val_id" class="form-input" value="<?php echo $mis['id']; ?>">
                         </td>
                     </tr>
                     <tr>
@@ -51,7 +68,7 @@
                         <td valign="top">:</td>
                         <td>
                             <label name="label_sender" style="font-weight:normal;">
-                                <?php echo select_sender('val_sender','form-control form-input',$sender); ?>
+                                <?php echo select_sender('val_sender','form-control form-input',$sender,$mis['sender']); ?>
                             </label>
                             <label name="value_sender"></label>
                         </td>
@@ -59,7 +76,7 @@
                     <tr>
                         <td width="150px" valign="top">Subject Message</td>
                         <td width="20px" valign="top">:</td>
-                        <td><input type="text" name="val_subject" class="form-control form-input" placeholder="Subject"></td>
+                        <td><input type="text" name="val_subject" class="form-control form-input" placeholder="Subject" value="<?php echo $mis['subject']; ?>"></td>
                     </tr>
                     <tr>
                         <td valign="top">Master Message</td>
@@ -67,7 +84,7 @@
                         <td>
                             <label name="label_master" style="font-weight:normal;"></label>
                             <label name="value_master">
-                                <input type="hidden" class="form-input" name="val_master" value="0">
+                                <input type="hidden" class="form-input" name="val_master" value="<?php echo $mis['master']; ?>">
                             </label>
                             <?php echo form_button($btfmaster); ?>
                             <div class="list-master" style="display:none;"></div>
@@ -79,7 +96,7 @@
                         <td>
                             <label name="label_target" style="font-weight:normal;"></label>
                             <label name="value_target">
-                                <input type="hidden" class="form-input" name="val_target" value="[]">
+                                <input type="hidden" class="form-input" name="val_target" value="<?php echo $mis['target']; ?>">
                             </label>
                             <?php echo form_button($btftarget); ?>
                             <div class="list-target" style="display:none;"></div>
@@ -109,11 +126,11 @@
         <script src="<?php echo base_url(); ?>globals/bootstrap/js/bootstrap.min.js"></script>
         <script>
             // data must be array id,email
-            function tx_radio_sender(data, inp){
+            function tx_radio_master(data, inp){
                 html = '<ul class="list-of-master">';
                 data.forEach(function(det){
                     html += '<li>'
-                    html += '<input type="radio" value="'+ det.id +'" name="tx_sender">&nbsp;'+ det.title +'<br\>';
+                    html += '<input type="radio" value="'+ det.id +'" name="tx_master">&nbsp;'+ det.title +'<br\>';
                     html += '</li>'
                 });
                 html += '</ul>';
@@ -132,7 +149,7 @@
             }
             
             function tx_option_sender(data, inp){
-                html = '<select name="tx_sender" class="form-input">';
+                html = '<select name="tx_master" class="form-input">';
                 $(data).each(function(){
                     dd = this;
                     sl = '';
@@ -161,7 +178,7 @@
                 td = bt.parent();
                 
                 label = td.find('label[name="label_master"]');
-                value = td.find('label[name="value_master"]');
+                value = td.find('input[name="val_master"]');
                 lists = td.find('.list-master');
                 
                 url = '<?php echo site_url(); ?>/mission/get_message';
@@ -170,13 +187,13 @@
                     data = $.parseJSON(result);
                     if(data['status']=='success'){
                         arr = data['data'];
-                        lists.html(tx_radio_sender(arr, ''));
+                        lists.html(tx_radio_master(arr, ''));
                         
-                        rad = lists.find('input[name="tx_sender"]');
+                        rad = lists.find('input[name="tx_master"]');
                         rad.each(function(){
                             act_radio( $(this) );
+                            if(this.value == value.val()) this.checked = true;
                         });
-                        
                         lists.slideDown();
                     }
                 });
@@ -186,21 +203,25 @@
                 bt = $(this);
                 td = bt.parent();
                 
+                param = $('.form-mission').find('input[name="val_target"]');
                 label = td.find('label[name="label_target"]');
-                value = td.find('label[name="value_target"]');
+                value = td.find('input[name="val_target"]');
                 lists = td.find('.list-target');
                 
                 url = '<?php echo site_url(); ?>/mission/get_target';
                 pos = $.post(url);
                 pos.done(function(result){
                     data = $.parseJSON(result);
+                    vals = $.parseJSON(value.val());
                     if(data['status']=='success'){
                         arr = data['data'];
                         lists.html(tx_check_target(arr, ''));
                         
                         rad = lists.find('input[name="tx_target"]');
                         rad.each(function(){
-                            act_check( $(this) );
+                            tmx = $(this);
+                            act_check( tmx );
+                            if(vals.indexOf(this.value) >= 0 ) this.checked = true;
                         });
                         
                         lists.slideDown();

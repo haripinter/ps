@@ -48,12 +48,18 @@ class Mission extends CI_Controller {
         return $res;
     }
     
-    function create( $id=null)
+    function create( $id=null )
     {
         $this->load->helper('custom_function');
         
         $data = array();
         $data['sender'] = $this->get_sender();
+        $data['mission'] = '';
+        
+        if(isset($id) && intval($id) > 0){
+            $data['mission'] = $this->mmission->get_mission( array('id'=>$id) );
+        }
+        
         $this->load->view('vMissionCreate',$data);
     }
     
@@ -87,14 +93,11 @@ class Mission extends CI_Controller {
         
         $data = array();
         $data['id'] = $idm;
-        $data['mission_cat_id'] = $sen;
         $data['name'] = $tit;
         $data['subject'] = $sub;
         $data['msg_out_id'] = $mas;
         $data['sender_id'] = $sen;
         $data['contact_tags'] = $tar;
-        $data['status'] = 0;
-        $data['order'] = 0;
         
         // for result
         $result = array();
@@ -103,6 +106,11 @@ class Mission extends CI_Controller {
             $r = $this->mmission->update_mission($data);
             $result['id'] = $data['id'];
         }else{
+            /* default value */
+            $data['mission_cat_id'] = 0;
+            $data['status'] = 0;
+            $data['order'] = 0;
+            
             $r = $this->mmission->insert_mission($data);
             $result['id'] = ($r == FALSE)? 0 : $r;
         }

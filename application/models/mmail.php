@@ -7,18 +7,18 @@ class Mmail extends CI_Model{
         $ret = array();
         $this->db->select('id,title,subject,message,`status`,`timestamp`');
         $this->db->from('message_out');
-        if(isset($data['id']) && is_numeric($data['id']) && $data['id']>0){
+        if(isset($data['id']) && intval($data['id'])>0){
             $this->db->where('id',$data['id']);
         }
         if(isset($data['order'])){
             $this->db->order_by($data['order']);
         }
-        if(isset($data['limit']) && is_numeric($data['limit']) && $data['limit']>0){
+        if(isset($data['limit']) && intval($data['limit'])>0){
             $this->db->limit($data['limit']);
+        }else{
+            $this->db->order_by( 'id' );
         }
-        
-        $ret = $this->db->get();
-        return $ret;
+        return $this->db->get();
     }
     
     function post_message_out()

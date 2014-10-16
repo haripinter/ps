@@ -2,23 +2,22 @@
 
 class Mmission extends CI_Model{
     
-    function get_mission( $id=null,$order=null,$limit=50 )
+    function get_mission( $data=array() )
     {
-        $data = null;
         $this->db->select("id,mission_cat_id,name,subject,msg_out_id,sender_id,contact_tags,`status`");
         $this->db->from('missions');
-        $this->db->limit($limit);
-        if(is_numeric($id) && $id>0){
-            $this->db->where('id',$id);
+        if(isset($data['id']) && intval($data['id'])>0){
+            $this->db->where('id',$data['id']);
         }
-        if($order!=null){
-            $this->db->order_by( $order );
+        if(isset($data['limit']) && intval($data['limit'])>0){
+            $this->db->limit($data['limit']);
+        }
+        if(isset($data['order'])){
+            $this->db->order_by($data['order']);
         }else{
             $this->db->order_by( 'id' );
         }
-        
-        $data = $this->db->get();
-        return ($this->db->affected_rows() > 0)? $data : FALSE;
+        return $this->db->get();
     }
     
     function remove_mission( $id=null )

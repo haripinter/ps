@@ -14,7 +14,7 @@ class Mail extends CI_Controller {
         $this->load->view('vMail',$data);
     }
     
-    function create( $id=null)
+    function create( $id=null )
     {
         $data['message'] = '';
         if(isset($id) && is_numeric($id) && $id > 0){

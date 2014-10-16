@@ -38,11 +38,11 @@
                             $tax = '';
                             $tags = $mission->tags;
                             if(sizeof($tags) > 0){
+                                $n = 0;
                                 foreach($tags as $tag){
                                     if(sizeof($tag) > 0){
-                                        $n = 0;
                                         foreach($tag as $t){
-                                            $tax = ($n++ > 0)? ', '.$t['tag_name'] : $t['tag_name'];
+                                            $tax .= ($n++ > 0)? ', '.$t['tag_name'] : $t['tag_name'];
                                         }
                                     }
                                 }
@@ -125,6 +125,8 @@
                                 btn.attr('stat',dat);
                                 btn.removeClass('btn-warning').addClass('btn-success');
                                 btn.html('on');
+                                break;
+                            default:
                                 break;
                         }
                     }
