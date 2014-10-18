@@ -30,7 +30,7 @@ class Mission extends CI_Controller {
                 $tmp->tags = array();
                 $tmq = json_decode($tmp->contact_tags);
                 foreach($tmq as $t){
-                    $u = $this->mcontact->get_tags($t);
+                    $u = $this->mcontact->get_tags(array('id'=>$t));
                     $v = array();
                     if($u->num_rows > 0){
                         foreach($u->result() as $w){

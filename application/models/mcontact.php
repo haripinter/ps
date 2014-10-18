@@ -6,19 +6,22 @@ class Mcontact extends CI_Model{
      * -- tags
      */
     
-    function get_tags( $id=null,$order=null )
+    function get_tags( $data=array() )
     {
-        $data = array();
         $this->db->select('id,tag_name,`status`');
         $this->db->from('contact_tags_cat');
-        if(is_numeric($id) && $id>0){
-            $this->db->where('id',$id);
+        if(isset($data['id']) && intval($data['id'])>0){
+            $this->db->where('id',$data['id']);
         }
-        if($order != null){
-            $this->db->order_by($order);
+        if(isset($data['limit']) && intval($data['limit'])>0){
+            $this->db->limit($data['limit']);
         }
-        $data = $this->db->get();
-        return ($this->db->affected_rows() > 0)? $data : FALSE;
+        if(isset($data['order'])){
+            $this->db->order_by($data['order']);
+        }else{
+            $this->db->order_by( 'id' );
+        }
+        return $this->db->get();
     }
     
     function json_tags_name(){
@@ -121,9 +124,24 @@ class Mcontact extends CI_Model{
         if(is_array($iml) && count($iml) >0){
             for($n=0; $n<count($iml); $n++){
                 if($iml[$n]=='') continue;
+                
+                $tags = array();
+                $tag  = json_decode($itg[$n]);
+                for($nx=0; $nx<count($tag); $nx++){
+                    $tmp = new stdClass;
+                    $tmp->id = $tag[$nx];
+                    
+                    $tg = $this->get_tags(array('id' => $tag[$nx]));
+                    foreach($tg->result() as $tgs){
+                        $tmp->tag = $tgs->tag_name;
+                    }
+                    array_push($tags,$tmp);
+                }
+                
                 $data = array();
                 $data['name'] = $inm[$n];
                 $data['email'] = strtolower($iml[$n]);
+                $data['contact_tags'] = json_encode($tags);
                 $data['status'] = 1;
                 $data['order'] = 1;
                 
@@ -149,13 +167,13 @@ class Mcontact extends CI_Model{
                 $doto['contact_id'] = $dota['id'];
                 $doto['contact_tag_id'] = $itg[$n]; // json string
                 $doto['status'] = 1;
+                $dota['tags'] = $data['contact_tags'];
                 
                 // result
-                if($doto['contact_tag_id']!=''){ 
-                    $dota['tags'] = $this->manage_contact_tag($doto);
-                }else{
-                    $dota['tags'] = '[]';
-                }
+                //if($doto['contact_tag_id']!=''){ 
+                //}else{
+                //    $dota['tags'] = '[]';
+               // }
                 
                 if(!$r){
                     $result['error']++;
@@ -178,7 +196,7 @@ class Mcontact extends CI_Model{
         return ($this->db->affected_rows() > 0)? TRUE : FALSE;
     }
     
-    function manage_contact_tag( $data )
+    /*function manage_contact_tag( $data )
     {   
         $result = array();
         
@@ -200,19 +218,20 @@ class Mcontact extends CI_Model{
             }
         }
         return $result;
-    }
+    }*/
     
-    function insert_contact_tags( $data=array() )
+    /*function insert_contact_tags( $data=array() )
     {
         $this->db->insert('contact_tags',$data);
         return ($this->db->affected_rows() > 0)? TRUE : FALSE;
-    }
+    }*/
      
     function get_contact( $id=null,$order=null,$limit=50 )
     {
         $data = null;
-        $inlineSQL = "(SELECT CONCAT(CONCAT(GROUP_CONCAT(tag_name)),')(',CONCAT(GROUP_CONCAT(contact_tags_cat.id))) FROM contact_tags JOIN contact_tags_cat ON contact_tags.contact_tag_id=contact_tags_cat.id WHERE contact_tags.contact_id=contact.id)";
-        $this->db->select("id,name,email,`status`,$inlineSQL as tags");
+        //$inlineSQL = "(SELECT CONCAT(CONCAT(GROUP_CONCAT(tag_name)),')(',CONCAT(GROUP_CONCAT(contact_tags_cat.id))) FROM contact_tags JOIN contact_tags_cat //ON contact_tags.contact_tag_id=contact_tags_cat.id WHERE contact_tags.contact_id=contact.id)";
+        //$this->db->select("id,name,email,`status`,$inlineSQL as tags");
+        $this->db->select("id,name,email,`status`, contact_tags as tags");
         $this->db->from('contact');
         $this->db->limit($limit);
         if(is_numeric($id) && $id>0){
@@ -225,17 +244,18 @@ class Mcontact extends CI_Model{
         }
         
         $data = $this->db->get();
-        return ($this->db->affected_rows() > 0)? $this->pre_result_tags($data) : FALSE;
+        //return ($this->db->affected_rows() > 0)? $this->pre_result_tags($data) : FALSE;
+        return ($this->db->affected_rows() > 0)? $data : FALSE;
     }
     
-    function pre_result_tags( $data ){
+    /*function pre_result_tags( $data ){
         foreach( $data->result() as $d ){
             $d->tags = $this->json_tags_get_tag($d->tags);
         }
         return $data;
-    }
+    }*/
     
-    function json_tags_get_tag( $str='' ){
+    /*function json_tags_get_tag( $str='' ){
         $ret = array();
         $par = ')(';
         if($str!=''){
@@ -254,7 +274,7 @@ class Mcontact extends CI_Model{
             }
         }
         return json_encode($ret);
-    }
+    }*/
     
     function remove_contact( $id=null )
     {
@@ -288,6 +308,19 @@ class Mcontact extends CI_Model{
         $result['double'] = array();
         $result['success'] = array();
         
+        $tags = array();
+        $tag  = $this->input->post('tags');
+        for($n=0; $n<count($tag); $n++){
+            $tmp = new stdClass;
+            $tmp->id = $tag[$n];
+            
+            $tg = $this->get_tags(array('id' => $tag[$n]));
+            foreach($tg->result() as $tgs){
+                $tmp->tag = $tgs->tag_name;
+            }
+            array_push($tags,$tmp);
+        }
+        
         if(!isset($data['filename']) || $data['filename']==''){
             return FALSE;
         }
@@ -300,6 +333,7 @@ class Mcontact extends CI_Model{
                 $data = array();
                 $data['name'] = '';
                 $data['email'] = $mail;
+                $data['contact_tags'] = json_encode($tags);
                 $data['status'] = 1;
                 $data['order'] = 1;
                 

@@ -36,7 +36,8 @@ class Contact extends CI_Controller {
     
     function import()
     {
-        $this->load->view('vContactImport');
+        $data['tags'] = $this->mcontact->get_tags();
+        $this->load->view('vContactImport',$data);
     }
     
     function upload(){

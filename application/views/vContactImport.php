@@ -21,6 +21,15 @@
                         'content'=>'Upload');
                         
         echo form_upload($btfile). '&nbsp;' .form_button($upload);
+        
+        echo "<br/>";
+        echo "<br/>";
+        echo "<br/>";
+        echo "<div>Tags : ";
+        foreach($tags->result() as $tag){
+            echo '<input class="form-input" name="tags[]" type="checkbox" value="'. $tag->id .'">'. $tag->tag_name . " ";
+        }
+        echo "</div>";
             
         ?>
         <br/>
@@ -44,14 +53,16 @@
                 url: url,
                 dataType: 'json',
                 autoUpload: false,
-                add: function(e, data){
+                add: function(e, data){;
                     $('.bupload').click(function(){
+                        data.formData = $('.form-input').serializeArray();
                         data.submit();
                     });
                     $('#txsuccess').removeClass().html('');
                     $('#txfail').removeClass().html('');
                 },
                 submit: function(e, data){
+                    console.log(data.formData)
                     $('#txstatus').addClass('bg-info').html('Processing...');
                 },
                 progressall: function (e, data) {

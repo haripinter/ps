@@ -234,7 +234,13 @@
                                 tog = tr.find('.list-tags');
                                 tog.slideUp();
                                 
-                                tgt = decode_json_tags( theData.tags );
+                                cond = [];
+                                conf = $.parseJSON(theData.tags);
+                                conf.forEach(function(kond){
+                                    cond.push(kond.id)
+                                });
+                                
+                                tgt = decode_json_tags( cond );
                                 lta = tr.find('.label_tags');
                                 lta.html(tgt);
                                 
@@ -265,6 +271,7 @@
                 ret = '';
                 n = 0;
                 tags = $.parseJSON($('.tags_name').val());
+                
                 param.forEach(function(id){
                     var theTag = $.map(tags, function(tag) {
                             return tag.id == id ? tag.tag_name : null;
