@@ -9,7 +9,7 @@ class Mmission extends CI_Model{
         $this->db->join('mission_run','missions.id = mission_run.mission_id','left');
         $this->db->group_by('missions.id');
         if(isset($data['id']) && intval($data['id'])>0){
-            $this->db->where('id',$data['id']);
+            $this->db->where('missions.id',$data['id']);
         }
         if(isset($data['limit']) && intval($data['limit'])>0){
             $this->db->limit($data['limit']);

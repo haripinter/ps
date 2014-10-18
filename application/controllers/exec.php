@@ -33,11 +33,6 @@ class Exec extends CI_Controller {
         $this->load->view('vExec',$data);
 	}
     
-    function a(){
-        $infx = $this->mexec->get_info_sender(array('id'=>2,'limit'=>20));
-        print_r($infx);
-    }
-    
     function run(){
         $id = intval($this->input->post('id'));
         $co = intval($this->input->post('count'));
@@ -56,7 +51,7 @@ class Exec extends CI_Controller {
             $data['pass'] = $info->password;
             $data['from'] = $info->email;
             $data['subject'] = $info->subject;
-            $data['message'] = $info->message;
+            $data['message'] = htmlspecialchars_decode($info->message);
             $data['server']  = $info->server;
             
             $mail  = array();

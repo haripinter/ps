@@ -38,9 +38,9 @@ function select_sender( $name, $clas, $str, $sel=null){
 function status_button($id, $status){
     $html = '';
     if($status == 0){
-        $html = '<button class="mission-status btn btn-sm btn-warning" var="'. $id .'" stat="'. $status .'">off</button>';
+        $html = '<button class="mission-status mission-status'. $id .' btn btn-sm btn-warning" var="'. $id .'" stat="'. $status .'">off</button>';
     }else{
-        $html = '<button class="mission-status btn btn-sm btn-success" var="'. $id .'" stat="'. $status .'">on</button>';
+        $html = '<button class="mission-status mission-status'. $id .' btn btn-sm btn-success" var="'. $id .'" stat="'. $status .'">on</button>';
     }
     return $html;
 }

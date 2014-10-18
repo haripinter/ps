@@ -34,8 +34,8 @@
                     <td><?php echo $mission->name; ?></td>
                     <td><input class="form-input form-control interval<?php echo $mission->id; ?>" style="width:50px" type="text" value="10" maxlength="3" name="interval"></td>
                     <td><input class="form-input form-control count<?php echo $mission->id; ?>" style="width:50px" type="text" value="50" maxlength="3" name="count"></td>
-                    <td><label class="email-sent"><label></td>
-                    <td><label class="progress"></label></td>
+                    <td><label class="email-sent<?php echo $mission->id; ?>"></label></td>
+                    <td><label class="progress<?php echo $mission->id; ?>"></label></td>
                     <td><?php echo status_button($mission->id, $mission->status); ?></td>
                 </tr>
                 <?php
@@ -51,16 +51,38 @@
             function call_executor( id ){
                 intval = $('.interval'+id).val();
                 setTimeout(function(){
-                    coun = $('.count'+id).val();
-                    data = [{name:'id',value: id},{name:'count', value: coun}];
-                    urls  = '<?php echo site_url(); ?>/exec/run';
-                    post = $.post(urls,data);
-                    post.done(function(result){
-                        result = $.parseJSON(result);
-                        
-                        
-                        call_executor( id );
-                    });
+                    stat = $('.mission-status'+id).attr('stat');
+                    if(stat == 1){
+                        coun = $('.count'+id).val();
+                        data = [{name:'id',value: id},{name:'count', value: coun}];
+                        urls  = '<?php echo site_url(); ?>/exec/run';
+                        post = $.post(urls,data);
+                        post.done(function(result){
+                            result = $.parseJSON(result);
+                            linfo  = result['last_info'];
+                            nn = 0;
+                            mm = 0;
+                            linfo.forEach(function(r){
+                                switch(r.status){
+                                    case '1':
+                                        nn = parseInt(r.count);
+                                        break;
+                                    case '0':
+                                        mm = parseInt(r.count);
+                                        break;
+                                    default:
+                                        break;
+                                }
+                            });
+                            oo = mm + nn;
+                            $('.email-sent'+ id).html( nn +'/'+ oo );
+                            $('.progress'+ id).html( (nn/oo*100)+'%' );
+                            
+                            if(nn < oo){
+                                call_executor( id );
+                            }
+                        });
+                    }
                 },intval*60*1000);
             }
             
@@ -92,6 +114,17 @@
                         }
                     }
                 });
+            });
+            
+            $(document).ready(function(){
+                stat = $('.mission-status');
+                stat.each(function(){
+                    cur = $(this);
+                    if(cur.attr('stat') == 1){
+                        call_executor( cur.attr('var') );
+                    }
+                });
+                console.log(3)
             });
         </script>
     </body>
