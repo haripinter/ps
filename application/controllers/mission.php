@@ -113,8 +113,21 @@ class Mission extends CI_Controller {
             
             $r = $this->mmission->insert_mission($data);
             $result['id'] = ($r == FALSE)? 0 : $r;
+            $result['mail_count'] = 0;
+            if($result['id']>0){
+                $run = array();
+                $run['mission_id'] = $result['id'];
+                $run['status'] = 0;
+                $mailid = $this->mmission->get_mission_by_tags( json_decode($data['contact_tags']) );
+                $mail = array();
+                
+                foreach($mailid->result() as $mid){
+                    $run['contact_id'] = $mid->id;
+                    $this->mmission->insert_mission_run($run);
+                    $result['mail_count']++;
+                }
+            }
         }
-        
         return $result;
     }
     

@@ -27,7 +27,7 @@
         $mis['sender'] = '';
         $mis['subject'] = '';
         $mis['master'] = '';
-        $mis['target'] = '';
+        $mis['target'] = '[]';
         if($mission!='' && $mission->num_rows == 1){
             foreach($mission->result() as $m){
                 $mis['id'] = $m->id;

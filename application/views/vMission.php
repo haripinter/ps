@@ -26,8 +26,9 @@
                         <th>Mission Name</th>
                         <th>Subject Email</th>
                         <th>Target Tags</th>
-                        <th>Progress</th>
+                        <th>Mail Count</th>
                         <th>Status</th>
+                        <th>&nbsp;</th>
                         <th>&nbsp;</th>
                     </tr>
                 </thead>
@@ -62,6 +63,7 @@
                                 <td><?php echo $mission->name; ?></td>
                                 <td><?php echo $mission->subject; ?></td>
                                 <td><?php echo $tax; ?></td>
+                                <td><?php echo $mission->mail_count; ?></td>
                                 <td>&nbsp;</td>
                                 <td><?php echo status_button($mission->id, $mission->status); ?></td>
                                 <td><?php echo form_button($btedit). ' '. form_button($btdel); ?></td>

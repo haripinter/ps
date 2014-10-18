@@ -4,8 +4,10 @@ class Mmission extends CI_Model{
     
     function get_mission( $data=array() )
     {
-        $this->db->select("id,mission_cat_id,name,subject,msg_out_id,sender_id,contact_tags,`status`");
+        $this->db->select("missions.id as id,mission_cat_id,name,subject,msg_out_id,sender_id,contact_tags,missions.`status` as `status`,count(mission_run.id) as mail_count");
         $this->db->from('missions');
+        $this->db->join('mission_run','missions.id = mission_run.mission_id','left');
+        $this->db->group_by('missions.id');
         if(isset($data['id']) && intval($data['id'])>0){
             $this->db->where('id',$data['id']);
         }
@@ -15,9 +17,24 @@ class Mmission extends CI_Model{
         if(isset($data['order'])){
             $this->db->order_by($data['order']);
         }else{
-            $this->db->order_by( 'id' );
+            $this->db->order_by( 'missions.id' );
         }
         return $this->db->get();
+    }
+    
+    function get_mission_by_tags( $tags=array() ){
+        $sql = 'SELECT id FROM `contact`';
+        
+        $like = '';
+        $n = 0;
+        foreach($tags as $tag){
+            if($n++ > 0) $like .= ' OR ';
+            $like .= 'contact_tags like \'%"'. $tag .'"%\'';
+        }
+        if($like !='')
+        $sql .= " WHERE ". $like;
+        
+        return $this->db->query($sql);
     }
     
     function remove_mission( $id=null )
@@ -28,6 +45,11 @@ class Mmission extends CI_Model{
             return ($this->db->affected_rows() > 0)? TRUE : FALSE;
         }
         return FALSE;
+    }
+    
+    function insert_mission_run( $data=array()){
+        $this->db->insert('mission_run',$data);
+        return ($this->db->affected_rows() > 0)? $this->db->insert_id() : FALSE;
     }
     
     function insert_mission( $data=array() )

@@ -22,18 +22,114 @@ class Exec extends CI_Controller {
 		parent::__construct();
         
         $this->load->database($this->db());
+        $this->load->model('mexec');
 	}
     
 	public function index()
 	{   
         $this->load->model('mmission');
         $this->load->helper('custom_function');
-        //$data['total_email'] = $this->mcontact->count_mail();
-		//$data['contact'] = $this->mcontact->get_contact();
-		//$data['tags_name'] = $this->mcontact->json_tags_name();
         $data['missions'] = $this->mmission->get_mission();
         $this->load->view('vExec',$data);
 	}
+    
+    function a(){
+        $infx = $this->mexec->get_info_sender(array('id'=>2,'limit'=>20));
+        print_r($infx);
+    }
+    
+    function run(){
+        $id = intval($this->input->post('id'));
+        $co = intval($this->input->post('count'));
+        $pars = array('id'=>$id,'limit'=>$co);
+        
+        $ret = array();
+        $ret['status'] = 'success';
+        if($id>0 && $co>0){
+            $info = array();
+            $infx = $this->mexec->get_info_sender($pars);
+            foreach($infx->result() as $inf) $info = $inf;
+            //$ret['info'] = json_encode($info);
+            
+            $data = array();
+            $data['user'] = $info->email;
+            $data['pass'] = $info->password;
+            $data['from'] = $info->email;
+            $data['subject'] = $info->subject;
+            $data['message'] = $info->message;
+            $data['server']  = $info->server;
+            
+            $mail  = array();
+            $mails = $this->mexec->get_target_contact($pars);
+            foreach($mails->result() as $ma){
+                $data['to'] = $ma->email;
+                $send = $this->sendMail($data);
+                if($send['status']=='success'){
+                    $this->mexec->update_status($ma->id);
+                }
+            }
+            //$ret['mail'] = json_encode($mail);
+            $ret['last_info'] = $this->mexec->last_info($pars);
+            $ret['sent'] = 0;
+            $ret['waiting'] = 0;
+        }
+        echo json_encode($ret);
+    }
+    
+    function getServer( $data )
+    {
+        $conf = array();
+        $conf['useragent'] = 'Mozilla/5.0 (Power PC) Gecko/20100101 Firefox/30.0';
+        
+        switch($data['server']){
+            case 'google':
+                $conf['protocol'] = 'smtp';
+                $conf['smtp_host'] = 'ssl://smtp.googlemail.com';
+                $conf['smtp_port'] = 465;
+                $conf['newline']   = "\r\n"; 
+                $conf['mailtype']  = 'html';
+                $conf['charset']   = 'utf-8';
+                $conf['smtp_user'] = $data['user'];
+                $conf['smtp_pass'] = $data['pass'];
+                break;
+                
+            case 'yahoo':
+                break;
+        }
+        return $conf;
+    }
+    
+    /*
+     * $data['user'] -> user login
+     * $data['pass'] -> user password
+     * $data['from']
+     * $data['to']
+     * $data['subject']
+     * $data['message']
+     * $data['server']  -> google / yahoo / 
+     */
+    
+    function sendMail( $data=array() ){
+        $res = array(); 
+        $conf = $this->getServer( $data );
+        
+        $this->load->library('email',$conf);
+        $this->email->from($data['from']);
+        $this->email->to($data['to']);
+        $this->email->subject($data['subject']);
+        $this->email->message($data['message']);
+        
+        if($this->email->send()){
+            $res['status'] = 'success';
+            $res['data']   = 'sent';
+        }else{
+            $res['status'] = 'failed';
+            $res['data']   = 'failed';
+        }
+        
+        //echo json_encode($res);
+        return $res;
+    }
     
     function db(){
         $conf = array();

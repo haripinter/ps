@@ -41,60 +41,6 @@ class Mail extends CI_Controller {
         echo json_encode($result);
     }
     
-    function getServer( $data )
-    {
-        $conf = array();
-        $conf['useragent'] = 'Mozilla/5.0 (Power PC) Gecko/20100101 Firefox/30.0';
-        
-        switch($data['server']){
-            case 'google':
-                $conf['protocol'] = 'smtp';
-                $conf['smtp_host'] = 'ssl://smtp.googlemail.com';
-                $conf['smtp_port'] = 465;
-                $conf['newline']   = "\r\n"; 
-                $conf['mailtype']  = 'html';
-                $conf['charset']   = 'utf-8';
-                $conf['smtp_user'] = $data['user'];
-                $conf['smtp_pass'] = $data['pass'];
-                break;
-                
-            case 'yahoo':
-                break;
-        }
-        return $conf;
-    }
-    
-    /*
-     * $data['user'] -> user login
-     * $data['pass'] -> user password
-     * $data['from']
-     * $data['to']
-     * $data['subject']
-     * $data['message']
-     * $data['server']  -> google / yahoo / 
-     */
-    
-    function sendMail( $data=array() ){
-        $res = array(); 
-        $conf = $this->getServer( $data );
-        
-        $this->load->library('email',$conf);
-        $this->email->from($data['from']);
-        $this->email->to($data['to']);
-        $this->email->subject($data['subject']);
-        $this->email->message($data['message']);
-        
-        if($this->email->send()){
-            $res['status'] = 'success';
-            $res['data']   = 'sent';
-        }else{
-            $res['status'] = 'failed';
-            $res['data']   = 'failed';
-        }
-        
-        echo json_encode($res);
-    }
-    
     function db(){
         $conf = array();
         $conf['hostname'] = 'localhost';
