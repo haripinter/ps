@@ -38,6 +38,8 @@ class Exec extends CI_Controller {
         $co = intval($this->input->post('count'));
         $pars = array('id'=>$id,'limit'=>$co);
         
+        //$pars['only'] = 'yahoo';
+        
         $ret = array();
         $ret['status'] = 'success';
         if($id>0 && $co>0){
@@ -58,12 +60,15 @@ class Exec extends CI_Controller {
             $mails = $this->mexec->get_target_contact($pars);
             foreach($mails->result() as $ma){
                 $data['to'] = $ma->email;
+                array_push($mail, $ma->email);
                 $send = $this->sendMail($data);
                 if($send['status']=='success'){
-                    $this->mexec->update_status($ma->id);
+                    $this->mexec->update_status($ma->id, 1);
+                }else{
+                    $this->mexec->update_status($ma->id, 2);
                 }
             }
-            //$ret['mail'] = json_encode($mail);
+            $ret['mail'] = json_encode($mail);
             $ret['last_info'] = $this->mexec->last_info($pars);
             $ret['sent'] = 0;
             $ret['waiting'] = 0;
@@ -89,6 +94,25 @@ class Exec extends CI_Controller {
                 break;
                 
             case 'yahoo':
+                $conf['protocol'] = 'smtp';
+                $conf['smtp_host'] = 'ssl://smtp.mail.yahoo.com';
+                $conf['smtp_port'] = 465;
+                $conf['newline']   = "\r\n"; 
+                $conf['mailtype']  = 'html';
+                $conf['charset']   = 'utf-8';
+                $conf['smtp_user'] = $data['user'];
+                $conf['smtp_pass'] = $data['pass'];
+                break;
+                
+            case 'kreswanti':
+                $conf['protocol'] = 'smtp';
+                $conf['smtp_host'] = 'ssl://sayegan.idwebhost.com';
+                $conf['smtp_port'] = 465;
+                $conf['newline']   = "\r\n"; 
+                $conf['mailtype']  = 'html';
+                $conf['charset']   = 'utf-8';
+                $conf['smtp_user'] = $data['user'];
+                $conf['smtp_pass'] = $data['pass'];
                 break;
         }
         return $conf;

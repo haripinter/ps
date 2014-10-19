@@ -37,8 +37,8 @@ class Mexec extends CI_Model{
         return $this->db->get()->result();
     }
     
-    function update_status( $id ){
-        $data = array('status'=>'1');
+    function update_status( $id , $val ){
+        $data = array('status'=>$val);
         $this->db->where('id',$id);
         $this->db->update('mission_run',$data);
         return ($this->db->affected_rows() >= 0)? TRUE : FALSE;
